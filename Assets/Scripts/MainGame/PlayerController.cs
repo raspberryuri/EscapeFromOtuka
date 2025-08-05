@@ -6,68 +6,29 @@ using UnityEngine.InputSystem;
 namespace MainGame
 {
     /// <summary>
-    /// プレイヤー制御クラス
+    /// プレイヤー制御クラス（体の左右回転 + カメラの上下回転を分離）
     /// </summary>
     public class PlayerController : MonoBehaviour
     {
-        /// <summary>
-        /// 移動速度
-        /// </summary>
         [SerializeField] private float _moveSpeed = 10f;
-        
-        /// <summary>
-        /// カメラ回転速度
-        /// </summary>
         [SerializeField] private float _lookSpeed = 50f;
-       
-        /// <summary>
-        /// Player Input
-        /// </summary>
-        private PlayerInput _playerInput = null;
 
-        /// <summary>
-        /// maxRayDistance
-        /// </summary>
+        [SerializeField] private Transform _playerBody;   // プレイヤー体（左右回転用）
+        [SerializeField] private Transform _playerCamera; // カメラ（上下回転用）
+
+        private PlayerInput _playerInput;
+
         private const int MaxRayDistance = 2;
 
-        /// <summary>
-        /// 現在の移動入力値
-        /// </summary>
         private Vector2 _currentMoveInputValue = Vector2.zero;
-
-        /// <summary>
-        /// 現在のカメラ回転入力値
-        /// </summary>
         private Vector2 _currentLookInputValue = Vector2.zero;
 
-        /// <summary>
-        /// 前回のカメラの向き
-        /// </summary>
-        private Vector3 _preRotation = Vector3.zero;
+        private float _xRotation = 0f;  // カメラの上下回転角度
 
-        /// <summary>
-        /// Input Actions - Move
-        /// </summary>
         private const string ACTION_MOVE = "Move";
-
-        /// <summary>
-        /// Input Actions - Look
-        /// </summary>
         private const string ACTION_LOOK = "Look";
-
-        /// <summary>
-        /// Input Actions - Fire
-        /// </summary>
         private const string ACTION_FIRE = "Fire";
 
-        /// <summary>
-        /// Device - ゲームパッド
-        /// </summary>
-        private const string DEVICE_GAMEPAD = "Gamepad";
-
-        /// <summary>
-        /// Start
-        /// </summary>
         private void Start()
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -78,16 +39,19 @@ namespace MainGame
                 _playerInput.actions[ACTION_LOOK].performed += OnLook;
                 _playerInput.actions[ACTION_LOOK].canceled += OnLook;
 
+                _playerInput.actions[ACTION_MOVE].performed += OnMove;
+                _playerInput.actions[ACTION_MOVE].canceled += OnMove;
+
                 _playerInput.actions[ACTION_FIRE].started += _ => OnFire();
             }
         }
 
-        /// <summary>
-        /// Update
-        /// </summary>
         private void Update()
         {
-            Ray ray = new Ray(this.transform.position, this.transform.forward);
+            Move();
+            Look();
+
+            Ray ray = new Ray(transform.position, transform.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, MaxRayDistance))
             {
                 GameUIManager.Isaimactive = hit.collider.TryGetComponent(out TargetHit target);
@@ -96,38 +60,40 @@ namespace MainGame
             {
                 GameUIManager.Isaimactive = false;
             }
-            look();
         }
 
-        private void move()
+        private void Move()
         {
-            var moveForward = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(_currentMoveInputValue.x, 0, _currentMoveInputValue.y);
-            transform.position += moveForward * _moveSpeed * Time.deltaTime;
+            Vector3 moveDir = new Vector3(_currentMoveInputValue.x, 0, _currentMoveInputValue.y);
+            Vector3 move = _playerBody.rotation * moveDir;
+            transform.position += move * _moveSpeed * Time.deltaTime;
         }
 
-        private void look()
+        private void Look()
         {
-            _preRotation.y += _currentLookInputValue.x * _lookSpeed * Time.deltaTime;
-            _preRotation.x -= _currentLookInputValue.y * _lookSpeed * Time.deltaTime;
-            _preRotation.x = Mathf.Clamp(_preRotation.x, -89, 89);
-            transform.localEulerAngles = _preRotation;
+            // 左右回転はプレイヤー体（ヨー回転）
+            _playerBody.Rotate(Vector3.up * _currentLookInputValue.x * _lookSpeed * Time.deltaTime);
+
+            // 上下回転はカメラ（ピッチ回転）
+            _xRotation -= _currentLookInputValue.y * _lookSpeed * Time.deltaTime;
+            _xRotation = Mathf.Clamp(_xRotation, -89f, 89f);
+
+            _playerCamera.localEulerAngles = new Vector3(_xRotation, 0f, 0f);
         }
 
-
-        /// <summary>
-        /// カメラ回転処理
-        /// </summary>
         public void OnLook(InputAction.CallbackContext context)
         {
             _currentLookInputValue = context.ReadValue<Vector2>();
         }
 
-        /// <summary>
-        /// 射撃処理
-        /// </summary>
+        public void OnMove(InputAction.CallbackContext context)
+        {
+            _currentMoveInputValue = context.ReadValue<Vector2>();
+        }
+
         public void OnFire()
         {
-            Ray ray = new Ray(this.transform.position, this.transform.forward);
+            Ray ray = new Ray(transform.position, transform.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, MaxRayDistance))
             {
                 if (hit.collider.TryGetComponent(out TargetHit target))
@@ -135,6 +101,6 @@ namespace MainGame
                     target.TriggerHit();
                 }
             }
-        } 
+        }
     }
 }

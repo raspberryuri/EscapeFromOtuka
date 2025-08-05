@@ -10,7 +10,7 @@ public class TitleButton : MonoBehaviour
 
     public void StartBtn()
     {
-        SceneManager.LoadScene("Main");
+        SceneManager.LoadScene(1);
     }
 
     public void ShowConfigPanel()

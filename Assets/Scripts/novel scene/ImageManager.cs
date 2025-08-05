@@ -7,32 +7,58 @@ namespace NovelGame
 {
     public class ImageManager : MonoBehaviour
     {
-        [SerializeField] Sprite _background1;
-        [SerializeField] Sprite _eventCG1;
-        [SerializeField] Sprite _eventCG2;
+        [Header("背景画像")]
+        [SerializeField] Sprite[] _backgrounds;
+
+        [Header("キャラ画像（表情順：デフォルト、笑う、驚く）")]
+        [SerializeField] Sprite[] _Miyabi;
+        [SerializeField] Sprite[] _Sontyo;
+        [SerializeField] Sprite[] _Unknown;
+
+        [Header("背景オブジェクト")]
         [SerializeField] GameObject _backgroundObject;
+
+        [Header("キャラオブジェクト")]
         [SerializeField] GameObject _eventObject;
+
+        [Header("イメージプレハブ")]
         [SerializeField] GameObject _imagePrefab;
 
-        // テキストファイルから、文字列でSpriteやGameObjectを扱えるようにするための辞書
         Dictionary<string, Sprite> _textToSprite;
         Dictionary<string, GameObject> _textToParentObject;
-
-        // 操作したいPrefabを指定できるようにするための辞書
         Dictionary<string, GameObject> _textToSpriteObject;
 
         void Awake()
         {
             _textToSprite = new Dictionary<string, Sprite>();
-            _textToSprite.Add("background1", _background1);
-            _textToSprite.Add("eventCG1", _eventCG1);
-            _textToSprite.Add("eventCG2", _eventCG2);
-
             _textToParentObject = new Dictionary<string, GameObject>();
-            _textToParentObject.Add("backgroundObject", _backgroundObject);
-            _textToParentObject.Add("eventObject", _eventObject);
-
             _textToSpriteObject = new Dictionary<string, GameObject>();
+
+            // 背景画像の登録（例：background0, background1...）
+            for (int i = 0; i < _backgrounds.Length; i++)
+            {
+                _textToSprite.Add($"background{i + 1}", _backgrounds[i]);
+            }
+
+            // キャラ画像の登録（命名規則：miyabi_default, sontyo_smile, unknown_surprise）
+            AddCharacterExpressions("miyabi", _Miyabi);
+            AddCharacterExpressions("sontyo", _Sontyo);
+            AddCharacterExpressions("unknown", _Unknown);
+
+            // 親オブジェクトの登録
+            _textToParentObject.Add("background", _backgroundObject);
+            _textToParentObject.Add("event", _eventObject);
+        }
+
+        // キャラクターの表情を辞書に登録
+        void AddCharacterExpressions(string name, Sprite[] expressions)
+        {
+            if (expressions.Length >= 3)
+            {
+                _textToSprite[$"{name}_default"] = expressions[0];
+                _textToSprite[$"{name}_smile"] = expressions[1];
+                _textToSprite[$"{name}_surprise"] = expressions[2];
+            }
         }
 
         // 画像を配置する
@@ -41,23 +67,24 @@ namespace NovelGame
             if (!_textToSprite.TryGetValue(imageName, out var image) ||
                 !_textToParentObject.TryGetValue(parentObjectName, out var parentObject))
             {
-                Debug.LogWarning("Invalid image or parent name.");
+                Debug.LogWarning($"Invalid image name ({imageName}) or parent name ({parentObjectName}).");
                 return;
             }
 
             GameObject item = Instantiate(_imagePrefab, Vector2.zero, Quaternion.identity, parentObject.transform);
             item.name = imageName;
+
             Image img = item.GetComponent<Image>();
             img.sprite = image;
 
-            // RectTransform をリセットしてストレッチ有効にする
+            //RectTransform の設定
             RectTransform rect = item.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0, 0);
             rect.anchorMax = new Vector2(1, 1);
-            rect.pivot = new Vector2(0, 1);
-            rect.position = new Vector3(0, 0, 0);
-            rect.offsetMin = Vector2.zero; // 左下
-            rect.offsetMax = Vector2.zero; // 右上
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
             rect.localScale = Vector3.one;
 
             _textToSpriteObject[imageName] = item;
@@ -66,7 +93,33 @@ namespace NovelGame
         // 画像を削除する
         public void RemoveImage(string imageName)
         {
-            Destroy(_textToSpriteObject[imageName]);
+            if (_textToSpriteObject.TryGetValue(imageName, out var obj))
+            {
+                Destroy(obj);
+                _textToSpriteObject.Remove(imageName);
+            }
         }
+
+        // すべての画像を削除する
+        public void RemoveAllImages()
+        {
+            ClearChildren(_backgroundObject.transform);
+            ClearChildren(_eventObject.transform);
+
+            _textToSpriteObject.Clear(); // 辞書もクリア
+        }
+
+        // 指定したTransformの全子オブジェクトを削除
+        private void ClearChildren(Transform parent)
+        {
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Destroy(parent.GetChild(i).gameObject);
+            }
+        }
+
+
+
+
     }
 }

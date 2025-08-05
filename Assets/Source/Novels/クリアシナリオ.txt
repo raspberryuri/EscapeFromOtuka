@@ -1,0 +1,24 @@
+&bgm stop
+&rmALL
+&img background10 background
+&wait 2
+&rmimg background10
+&img background11 background
+&se 4
+&wait 4
+ :主人公達が3つの謎を解き終えると、周囲が光り始める。
+主人公:何だ！？この光‥！
+ミヤビ:あなたが現れた時と同じ光だわ！
+&img background12 background
+ :そのまま主人公は光りに包まれ、謎の声が脳内に響く。
+???:あなたの助けで、ムラは元の姿を取り戻した。
+???:この光があなたの帰る道しるべになるはず‥‥。
+&img background13 background
+主人公:ん‥‥
+主人公:ここは‥。戻ってこれたのか。
+ :目を覚ます主人公。そこは元いた実験室だった。
+&img background14 background
+主人公:ミヤビ‥あの出来事‥どれも夢ではなかった。
+あのムラの生活、誇り‥忘れない。
+&wait 3
+&sceCh Title

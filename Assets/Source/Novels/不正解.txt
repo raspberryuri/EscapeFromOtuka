@@ -1,0 +1,3 @@
+&img miyabi_default event
+ミヤビ:不正解だね・・・・
+ミヤビ:違う答えを考えよう

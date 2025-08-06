@@ -1,38 +1,38 @@
 &bgm stop
-&img background1 background
+&img background_1 background
 あなたは、新たに開発された最新の歴史体験AIのテストユーザーとして呼ばれました。
 しかし、体験途中にシステム異常が発生―。
 気づけばあなたは、本当の弥生時代の村の中に立っていました。
 &bgm 1
-&img background2 background
+&img background_2 background
  :とある実験室の扉の前。
 主人公:今日は、大学の研究チームが開発した“歴史体験AI”を試す日だ。
 主人公:“弥生時代をリアルに学ぶ”。って、授業とは違って、ちょっとしたゲームみたいで少しわくわく‥！
 &se 1
 &bgm stop
  :主人公が部屋へ入り、システムを起動する。
-&img background3 background
+&img background_3 background
 主人公:スタートっと
 &se 2
 &wait 3
-&img background4 background
+&img background_4 background
 &wait 2
-&rmimg background4
+&rmimg background_4
 &se 3
-&img background5 background
+&img background_5 background
 &wait 4
 主人公:ん？バグった？‥‥うわ、なにこれ‥！？
-&img background6 background
+&img background_6 background
 &se 4
 &wait 3
-&rmimg background6
-&img background7 background
+&rmimg background_6
+&img background_7 background
 &wait 1
 &bgm 2
 主人公:ここは‥。
  :主人公が目を覚ますと、そこはある集落の中だった‥。
-&rmimg background7
-&img background8 background
+&rmimg background_7
+&img background_8 background
 &img miyabi_default event
 ミヤビ:目覚めたのね‥‥！
 ミヤビ:私はミヤビ。ここ”大塚ムラ”の住民よ。
@@ -43,7 +43,7 @@
 ミヤビ:普段は、稲を育てたり、狩りや漁、木の実を採ったりして自然の恵みを大切にしているわ。
 ミヤビ:ムラには、『高床倉庫』そして『竪穴式住居』があって、近くにはお墓もあるのよ。
 ミヤビ:でも今はムラに謎のオブジェが出現していて、見せることができないからまた今度ね。
-&img background9 background
+&img background_9 background
 &rmimg miyabi_default
 主人公:オブジェ？
 ミヤビ:うん。謎のオブジェは壊せないし動かせない。
@@ -56,7 +56,7 @@
 主人公:ミヤビ達にはこの文字が見えていないのだろうか。
 主人公:唱えるものが分かれば、何か変わるのかな。
 主人公:もしかしたら何か唱えたら何かが起こって、戻れる‥？
-&img background1 background
+&img background_1 background
  :この大塚ムラには3つの謎があります。
  :オブジェ横の問題を解いて、オブジェに答えを入力し、火を灯しましょう。
  :全て灯し終え、円形のオブジェへ向かうとクリアになります。

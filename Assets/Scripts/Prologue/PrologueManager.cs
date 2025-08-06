@@ -12,16 +12,15 @@ public class PrologueManager : MonoBehaviour
         // 入力マップをノベル用に切替
         InputManager.Instance.SwitchActionMap(GameMode.NovelGame);
 
-        var novelmanager = NovelGame.NovelManager.Instance;
+        var novelmanager = NovelSystems.NovelManager.Instance;
         // Inspector で設定したシナリオを読み込む
-        novelmanager.userScriptManager.LoadScenario(NovelGame.ScenarioType.Main);
+        novelmanager.PlayScenario("Main");
         novelCanvas?.SetActive(true);
-        novelmanager.mainTextController.StartTextNovel();
     }
 
     private void FindNovelCanvas()
     {
-        var novelManagerObj = GameObject.Find("NovelManager");
+        var novelManagerObj = GameObject.Find("NewNovelmanager");
         if (novelManagerObj == null)
         {
             Debug.LogWarning("NovelManager がシーンに見つかりません。");

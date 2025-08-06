@@ -51,7 +51,11 @@ public class InputManager : MonoBehaviour
     /// <summary>
     /// モード切り替え＋アクションマップ更新
     /// </summary>
-    public void SwitchActionMap(GameMode mode)
+    /// <summary>
+    /// モード切り替え＋アクションマップ更新
+    /// </summary>
+    /// <returns>切り替え成功なら true、失敗なら false</returns>
+    public bool SwitchActionMap(GameMode mode)
     {
         CurrentMode = mode;
         string mapName = mode switch
@@ -71,19 +75,21 @@ public class InputManager : MonoBehaviour
         {
             currentMap = null;
             Debug.Log($"[InputManager] モード {mode} ですべての入力無効");
-            return;
+            return true; // 無効化は成功とみなす
         }
 
         // 新マップを有効化
-        currentMap = inputActions.FindActionMap(mapName, true);
+        currentMap = inputActions.FindActionMap(mapName, false);
         if (currentMap != null)
         {
             currentMap.Enable();
             Debug.Log($"[InputManager] モード {mode} に切替（マップ:{mapName}）");
+            return true;
         }
         else
         {
             Debug.LogWarning($"[InputManager] アクションマップ '{mapName}' が見つかりません");
+            return false;
         }
     }
 

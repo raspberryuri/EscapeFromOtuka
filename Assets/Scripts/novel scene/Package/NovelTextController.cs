@@ -9,7 +9,6 @@ namespace NovelSystems
     public class NovelTextController : MonoBehaviour
     {
         private ICommandExecutor _commandExecutor;
-        private IAudioController _audioController;
 
         [Header("UI")]
         [SerializeField] private TextMeshProUGUI mainTextObject;
@@ -18,31 +17,27 @@ namespace NovelSystems
         [Header("文字送り設定")]
         [SerializeField] private float feedTime = 0.05f;
 
-        [Header("待機時間（秒）")]
-        [SerializeField] private float defaultWaitTime = 0f;
-        private float waitDuration = 0f;
+        [Header("キャラクター設定")]
+        [SerializeField] private List<CharacterSetting> characterSettings = new List<CharacterSetting>();
 
-        [Header("キャラクター色設定")]
-        [SerializeField] private List<CharacterColor> characterColors = new List<CharacterColor>();
-
-        private List<string> lines; // 読み込んだテキスト行
+        private List<string> lines;
         private int currentLineIndex = 0;
 
         private int displayedLength = 0;
         private float timer = 0f;
         private bool isTyping = false;
+        private bool lineComplete = false;
         private bool isWaiting = false;
+        private float waitDuration = 0f;
 
         private enAudioClip currentTypingSE = enAudioClip.UI_Talk_narration;
 
-        public void Initialize(TextAsset scenarioText, ICommandExecutor commandExecutor, IAudioController audioController)
+        public void Initialize(TextAsset scenarioText, ICommandExecutor commandExecutor)
         {
             _commandExecutor = commandExecutor;
-            _audioController = audioController;
 
             lines = LoadLines(scenarioText);
             currentLineIndex = 0;
-
 
             StartCoroutine(ProcessCurrentLine());
         }
@@ -68,70 +63,93 @@ namespace NovelSystems
 
             string line = lines[currentLineIndex];
 
+            // コマンド行
             if (IsStatement(line))
             {
                 ExecuteCommand(line);
-                yield return HandleWait();
-                currentLineIndex++;
-                StartCoroutine(ProcessCurrentLine());
-            }
-            else
-            {
-                // 表示用テキスト処理
-                string name = "";
-                string message = line;
-                if (line.Contains(":"))
-                {
-                    var parts = line.Split(new char[] { ':' }, 2);
-                    name = parts[0].Trim();
-                    message = parts[1].Trim();
-                }
 
-                SetNameAndColor(name);
-                mainTextObject.text = message;
-                displayedLength = 0;
-                isTyping = true;
-                mainTextObject.maxVisibleCharacters = 0;
-
-                while (isTyping)
+                // &waitなら一定時間待って次の行へ
+                if (waitDuration > 0f)
                 {
-                    timer += Time.deltaTime;
-                    if (timer >= feedTime)
+                    isWaiting = true;
+                    float t = 0f;
+                    while (t < waitDuration)
                     {
-                        timer = 0f;
-                        displayedLength++;
-                        mainTextObject.maxVisibleCharacters = Mathf.Min(displayedLength, message.Length);
-
-                        // 文字送りSE
-                        _audioController?.PlaySE((int)currentTypingSE);
-
-                        if (displayedLength >= message.Length)
-                            isTyping = false;
+                        t += Time.deltaTime;
+                        yield return null;
                     }
-                    yield return null;
+                    isWaiting = false;
+                    waitDuration = 0f;
                 }
-
-                yield return HandleWait();
 
                 currentLineIndex++;
                 StartCoroutine(ProcessCurrentLine());
+                yield break;
             }
+
+            // 通常テキスト
+            string name = "";
+            string message = line;
+            if (line.Contains(":"))
+            {
+                var parts = line.Split(new char[] { ':' }, 2);
+                name = parts[0].Trim();
+                message = parts[1].Trim();
+            }
+
+            SetCharacter(name);
+            mainTextObject.text = message;
+            displayedLength = 0;
+            isTyping = true;
+            lineComplete = false;
+            mainTextObject.maxVisibleCharacters = 0;
+
+            // 文字送りループ
+            while (displayedLength < message.Length)
+            {
+                if (!isTyping) break; // クリックでスキップされたら抜ける
+
+                timer += Time.deltaTime;
+                if (timer >= feedTime)
+                {
+                    timer = 0f;
+                    displayedLength++;
+                    mainTextObject.maxVisibleCharacters = displayedLength;
+
+                    NovelAudioManager.Instance?.OneShotSE(currentTypingSE);
+                }
+                yield return null;
+            }
+
+            // 全文表示
+            displayedLength = message.Length;
+            mainTextObject.maxVisibleCharacters = displayedLength;
+            isTyping = false;
+            lineComplete = true;
+
+            yield break; // 次はクリックで進行
         }
 
-        private IEnumerator HandleWait()
+        /// <summary>
+        /// クリック時の挙動
+        /// </summary>
+        public void OnClick()
         {
-            float waitTime = waitDuration > 0f ? waitDuration : defaultWaitTime;
-            waitDuration = 0f;
-            if (waitTime > 0f)
+            if (isWaiting) return; // &wait中は無視
+
+            if (isTyping)
             {
-                isWaiting = true;
-                float timer = 0f;
-                while (timer < waitTime)
-                {
-                    timer += Time.deltaTime;
-                    yield return null;
-                }
-                isWaiting = false;
+                // 文字送り中 → 全文表示にスキップ
+                displayedLength = mainTextObject.text.Length;
+                mainTextObject.maxVisibleCharacters = displayedLength;
+                isTyping = false;
+                lineComplete = true;
+            }
+            else if (lineComplete)
+            {
+                // 文字送りが完了済み → 次の行へ
+                currentLineIndex++;
+                StartCoroutine(ProcessCurrentLine());
             }
         }
 
@@ -158,7 +176,7 @@ namespace NovelSystems
                     break;
                 case "&sceCh":
                     if (words.Length >= 2)
-                        _commandExecutor.ChangeScene(words[1]);
+                        NovelManager.SceneChanger(words[1]);
                     break;
                 case "&wait":
                     if (words.Length >= 2 && float.TryParse(words[1], out float sec))
@@ -166,15 +184,15 @@ namespace NovelSystems
                     break;
                 case "&se":
                     if (words.Length >= 2 && int.TryParse(words[1], out int seId))
-                        _audioController.PlaySE(seId);
+                        NovelAudioManager.Instance.OneShotSE((enAudioClip)(seId + 50));
                     break;
                 case "&bgm":
                     if (words.Length >= 2)
                     {
                         if (words[1].ToLower() == "stop")
-                            _audioController.StopBGM();
+                            NovelAudioManager.Instance.StopBGM();
                         else if (int.TryParse(words[1], out int bgmId))
-                            _audioController.PlayBGM(bgmId);
+                            NovelAudioManager.Instance.PlayBGM((enAudioClip)(bgmId + 100));
                     }
                     break;
                 default:
@@ -183,18 +201,25 @@ namespace NovelSystems
             }
         }
 
-        private void SetNameAndColor(string name)
+        /// <summary>
+        /// キャラクター名に応じて色と文字送りSEを変更
+        /// </summary>
+        private void SetCharacter(string name)
         {
             Color color = Color.white;
-            foreach (var cc in characterColors)
+            currentTypingSE = enAudioClip.UI_Talk_narration; // デフォルト
+
+            foreach (var cs in characterSettings)
             {
-                if (cc.characterName == name)
+                if (cs.characterName == name)
                 {
-                    color = cc.color;
+                    color = cs.color;
                     if (color.a == 0f) color.a = 1f;
+                    currentTypingSE = cs.typingSE;
                     break;
                 }
             }
+
             nameObject.color = color;
             mainTextObject.color = color;
             nameObject.text = name;
@@ -203,33 +228,6 @@ namespace NovelSystems
         private void OnScenarioEnd()
         {
             Debug.Log("Scenario ended");
-            // ノベル終了時の処理をここに（UI非表示など）
-        }
-
-        public void OnClick()
-        {
-            if (isWaiting)
-                return;
-
-            if (isTyping)
-            {
-                // 文字送りスキップして全文表示
-                displayedLength = mainTextObject.text.Length;
-                mainTextObject.maxVisibleCharacters = displayedLength;
-                isTyping = false;
-            }
-            else
-            {
-                if (currentLineIndex < lines.Count)
-                {
-                    StopAllCoroutines();
-                    StartCoroutine(ProcessCurrentLine());
-                }
-                else
-                {
-                    OnScenarioEnd();
-                }
-            }
         }
 
         public void ResetAll()
@@ -240,31 +238,24 @@ namespace NovelSystems
             displayedLength = 0;
             timer = 0f;
             isTyping = false;
-            isWaiting = false;
+            lineComplete = false;
             waitDuration = 0f;
+            isWaiting = false;
         }
     }
 
     [System.Serializable]
-    public class CharacterColor
+    public class CharacterSetting
     {
         public string characterName;
-        public Color color;
+        public Color color = Color.white;
+        public enAudioClip typingSE = enAudioClip.UI_Talk_narration;
     }
-    // インターフェース：UIやシーン操作
+
     public interface ICommandExecutor
     {
         void PutImage(string name, string spriteName);
         void RemoveImage(string name);
         void RemoveAllImages();
-        void ChangeScene(string sceneName);
-    }
-
-    // インターフェース：BGM・SE 操作
-    public interface IAudioController
-    {
-        void PlaySE(int seId);
-        void PlayBGM(int bgmId);
-        void StopBGM();
     }
 }

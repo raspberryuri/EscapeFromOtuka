@@ -183,12 +183,5 @@ namespace NovelSystems
         {
             RemoveAllImages();
         }
-
-        void ICommandExecutor.ChangeScene(string sceneName)
-        {
-            NovelManager.SceneChanger(sceneName);
-        }
-
-
     }
 }

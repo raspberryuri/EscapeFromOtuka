@@ -66,6 +66,12 @@ namespace NovelSystems
             InputManager.Instance?.SwitchActionMap(GameMode.NovelGame);
         }
 
+        public void SetCursorState(bool visible, bool lockCursor)
+        {
+            Cursor.visible = visible;
+            Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
+        }
+
         // 画像を配置するメソッド
         public void PutImage(string identifier, string parentObjectName)
         {

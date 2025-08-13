@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -23,9 +24,10 @@ namespace MainGame
         public bool[] correctFlags = new bool[3]; // 0:高床,1:竪穴迷路,2:竪穴ツボ
 
         private GameUIManager gameUIManager;
-        private GameObject novelCanvas;
 
         public static int InputPanelID = 0; //0:高床, 1:竪穴迷路, 2:竪穴ツボ
+
+        private bool isClearing = false; // クリア遷移中フラグ
 
         // ====== プロパティ ======
         public bool IsTimeUp => timer >= maxTimeSec;
@@ -40,15 +42,15 @@ namespace MainGame
                 Destroy(gameObject);
                 return;
             }
-
-            FindNovelCanvas();
         }
 
         private void Start()
         {
             gameUIManager = GetComponent<GameUIManager>();
-            AudioManager.Instance.PlayBGM(enAudioClip.GameBGM_MainBGM);
+            NovelSystems.NovelAudioManager.Instance.PlayBGM(NovelSystems.enAudioClip.GameBGM_MainBGM);
             InputManager.Instance?.SwitchActionMap(GameMode.MainGame);
+            NovelSystems.NovelManager.Instance.returnActionMap = GameMode.MainGame;
+            NovelSystems.NovelManager.Instance.SetHomeAndLogButtonsActive(false);
         }
 
         private void Update()
@@ -87,16 +89,28 @@ namespace MainGame
         {
             if (index < 0 || index >= correctFlags.Length) return;
 
-            // すでに正解済みなら何もしない（スコアは増えない）
             if (correctFlags[index]) return;
 
             correctFlags[index] = true;
 
-            // 全問正解でクリア
-            if (Score >= MaxScore)
+            if (Score >= MaxScore && !isClearing)
             {
-                SceneManager.LoadScene(3);
+                StartCoroutine(DelayedClearTransition());
             }
+        }
+
+        private IEnumerator DelayedClearTransition()
+        {
+            isClearing = true;
+
+            // 入力モードを NovelInput に切り替え
+            InputManager.Instance?.SwitchActionMap(GameMode.NovelGame);
+
+            // 1秒待つ
+            yield return new WaitForSeconds(1f);
+
+            // シーン切り替え（クリアシーン）
+            SceneManager.LoadScene(3);
         }
 
         public void ResetScore()
@@ -118,23 +132,6 @@ namespace MainGame
         public void OnTextInputing()
         {
             AudioManager.Instance.OneShotSE(enAudioClip.UI_Talk_narration);
-        }
-
-        private void FindNovelCanvas()
-        {
-            var novelManagerObj = GameObject.Find("NovelManager");
-            if (novelManagerObj == null)
-            {
-                Debug.LogWarning("NovelManager がシーンに見つかりません。");
-                return;
-            }
-
-            var canvas = novelManagerObj.GetComponentInChildren<Canvas>(true);
-            novelCanvas = canvas?.gameObject;
-            if (novelCanvas == null)
-            {
-                Debug.LogWarning("NovelCanvas が見つかりませんでした。");
-            }
         }
 
         private void ToggleTouch(int index)
@@ -177,42 +174,27 @@ namespace MainGame
 
         public void OnReturnTitle()
         {
-            // スコアとタイマーを初期化
             ResetScore();
             ResetTimer();
             InputPanelID = 0;
 
-            // UI入力もリセット
             if (inputField != null) inputField.text = "";
             Time.timeScale = 1f;
 
-            // 必要なら他のシングルトンも初期化
-            var novel = NovelGame.NovelManager.Instance;
-            if (novel != null)
-            {
-                novel.userScriptManager.ResetAll(); // リセット用メソッドを作ると便利
-                novel.mainTextController.ResetAll(); // 必要なら追加
-            }
+            NovelSystems.NovelAudioManager.Instance.PlayBGM(NovelSystems.enAudioClip.BGM_default);
 
-            // BGM 切り替え（タイトル用がある場合）
-            AudioManager.Instance.PlayBGM(enAudioClip.BGM_default);
-
-            // タイトルシーンロード
             SceneManager.LoadScene(0);
         }
-
 
         private void HandleCorrectAnswer(int index)
         {
             AudioManager.Instance.OneShotSE(enAudioClip.UI_InputHit);
 
-            SetCorrect(index); // ★ bool フラグを ON に変更
+            SetCorrect(index);
             EnterNovelMode();
 
-            var novel = NovelGame.NovelManager.Instance;
-            novel.userScriptManager.LoadScenario((NovelGame.ScenarioType)index);
-            novelCanvas?.SetActive(true);
-            novel.mainTextController.StartTextNovel();
+            var novel = NovelSystems.NovelManager.Instance;
+            novel.PlayScenario("CollectAnswer");
 
             ToggleTouch(index);
             inputField.text = "";
@@ -225,10 +207,8 @@ namespace MainGame
 
             Debug.Log($"不正解：入力='{input}' / 正解='{correct}'");
 
-            var novel = NovelGame.NovelManager.Instance;
-            novel.userScriptManager.LoadScenario(NovelGame.ScenarioType.UnPassword);
-            novelCanvas?.SetActive(true);
-            novel.mainTextController.StartTextNovel();
+            var novel = NovelSystems.NovelManager.Instance;
+            novel.PlayScenario("MissAnswer");
         }
 
         private void EnterNovelMode()

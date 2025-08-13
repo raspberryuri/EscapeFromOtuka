@@ -83,8 +83,8 @@ namespace NovelSystems
         /// <summary>BGMÇí‚é~Ç∑ÇÈ</summary>
         public void StopBGM()
         {
-            if (BGM_source.isPlaying)
-                BGM_source.Stop();
+            Debug.Log("Stop");
+            BGM_source.Stop();
         }
 
         /// <summary>çƒê∂íÜÇÃSEÇí‚é~Ç∑ÇÈ</summary>

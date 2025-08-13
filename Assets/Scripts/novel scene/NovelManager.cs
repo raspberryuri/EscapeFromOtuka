@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace NovelSystems
 {
@@ -21,6 +22,7 @@ namespace NovelSystems
         [SerializeField] private NovelData novelData;
 
         private NovelDataManager _manager;
+        [SerializeField] public GameMode returnActionMap = GameMode.NotInput;
         public static NovelDataManager Data => Instance?._manager;
 
         public static NovelUIManager UI => Instance?.uiManager;
@@ -31,12 +33,32 @@ namespace NovelSystems
 
         private InputAction clickAction;
 
-        private void Start()
+        private void Awake()
         {
             if (!InitializeSingleton()) return;
 
             InitializeDataManager();
-            InitializeInput();
+            SetNovelActive(false);
+
+            // ★ HomeButton を子階層から探してイベント登録
+            Button[] buttons = GetComponentsInChildren<Button>(true);
+            foreach (var btn in buttons)
+            {
+                if (btn.name == "HomeButton")
+                {
+                    btn.onClick.AddListener(OnHomeButtonClicked);
+                    Debug.Log("HomeButton にクリックイベントを登録しました");
+                    break;
+                }
+            }
+        }
+
+        public void OnHomeButtonClicked()
+        {
+            NovelAudioManager.Instance.StopBGM();
+            uiManager.SetCursorState(true,false);
+            Destroy(this.gameObject);
+            SceneManager.LoadScene(0);
         }
 
         #region Initialization
@@ -69,33 +91,6 @@ namespace NovelSystems
             }
         }
 
-        private void InitializeInput()
-        {
-            if (InputManager.Instance == null)
-            {
-                Debug.LogWarning("InputManager がシーンに存在しません。クリック入力は無効です。");
-                return;
-            }
-
-
-            InputManager.Instance.SwitchActionMap(GameMode.NovelGame);
-
-            var map = InputManager.Instance.GetCurrentActionMap();
-            if (map != null)
-            {
-                clickAction = map.FindAction("Click");
-                if (clickAction != null)
-                {
-                    clickAction.performed += OnClickPerformed;
-                    clickAction.Enable();
-                }
-                else
-                {
-                    Debug.LogWarning("Click アクションが見つかりません");
-                }
-            }
-        }
-
         #endregion
 
         private void OnDestroy()
@@ -110,6 +105,8 @@ namespace NovelSystems
         public void SetNovelActive(bool active)
         {
             isNovelActive = active;
+            uiManager.SetCursorState(active,!active);
+
 
             if (novelUIRoot != null)
                 novelUIRoot.SetActive(active);
@@ -118,10 +115,35 @@ namespace NovelSystems
 
             if (InputManager.Instance != null)
             {
-                var targetMode = active ? GameMode.NovelGame : GameMode.MainGame;
+                var targetMode = active ? GameMode.NovelGame : returnActionMap;
                 if (InputManager.Instance.SwitchActionMap(targetMode))
                 {
                     Debug.LogWarning($"ActionMap {targetMode} に切り替えできませんでした");
+                }
+
+                if (active)
+                {
+                    if (clickAction == null)
+                    {
+                        var map = InputManager.Instance.GetCurrentActionMap();
+                        if (map != null)
+                        {
+                            clickAction = map.FindAction("Click");
+                            if (clickAction != null)
+                            {
+                                clickAction.performed += OnClickPerformed;
+                                clickAction.Enable();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        clickAction.Enable();
+                    }
+                }
+                else
+                {
+                    clickAction?.Disable();
                 }
             }
         }
@@ -136,13 +158,24 @@ namespace NovelSystems
 
         #region Public API
 
-        /// <summary>シーン切り替え</summary>
         public static void SceneChanger(string sceneName)
         {
             SceneManager.LoadScene(sceneName);
         }
+        public void SetHomeAndLogButtonsActive(bool active)
+        {
+            Button[] buttons = GetComponentsInChildren<Button>(true);
 
-        /// <summary>シナリオを名前で選択し再生する</summary>
+            foreach (var btn in buttons)
+            {
+                if (btn.name == "HomeButton" || btn.name == "LogButton")
+                {
+                    btn.gameObject.SetActive(active);
+                    Debug.Log($"{btn.name} の表示を {(active ? "ON" : "OFF")} にしました");
+                }
+            }
+        }
+
         public void PlayScenario(string scenarioName)
         {
             var scenario = _manager?.GetScenarioTextByName(scenarioName);
@@ -153,12 +186,13 @@ namespace NovelSystems
                 return;
             }
 
+            Debug.Log($"Scenario->{returnActionMap.ToString()}");
             SetNovelActive(true);
+
             lineNumber = 0;
-            TextController?.Initialize(scenario, uiManager);
+            TextController?.Initialize(scenario, uiManager, uiManager);
         }
 
-        /// <summary>シナリオをインデックスで選択し再生する</summary>
         public void PlayScenario(int index)
         {
             var scenario = _manager?.GetScenarioTextByIndex(index);
@@ -169,8 +203,9 @@ namespace NovelSystems
             }
 
             SetNovelActive(true);
+
             lineNumber = 0;
-            TextController?.Initialize(scenario, uiManager);
+            TextController?.Initialize(scenario, uiManager, uiManager);
         }
 
         #endregion
@@ -187,10 +222,18 @@ namespace NovelSystems
             => UI?.RemoveAllImages();
 
         public static void OpenLogWindow()
-            => UI?.OpenLogWindow();
+        {
+            UI?.OpenLogWindow();
+            Time.timeScale = 0.0f;
+            InputManager.Instance.SwitchActionMap(GameMode.NotInput);
+        }
 
         public static void CloseLogWindow()
-            => UI?.CloseLogWindow();
+        {
+            UI?.CloseLogWindow();
+            Time.timeScale = 1.0f;
+            InputManager.Instance.SwitchActionMap(GameMode.NovelGame);
+        }
 
         public static void ResetTextDisplay()
             => TextController?.ResetAll();

@@ -1,3 +1,4 @@
+&rmALL
 &bgm stop
 &img background_1 background
 あなたは、新たに開発された最新の歴史体験AIのテストユーザーとして呼ばれました。

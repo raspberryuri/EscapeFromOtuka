@@ -13,6 +13,7 @@ public class PrologueManager : MonoBehaviour
         InputManager.Instance.SwitchActionMap(GameMode.NovelGame);
 
         var novelmanager = NovelSystems.NovelManager.Instance;
+        Debug.Log(novelmanager);
         // Inspector ‚Åİ’è‚µ‚½ƒVƒiƒŠƒI‚ğ“Ç‚İ‚Ş
         novelmanager.PlayScenario("Main");
         novelCanvas?.SetActive(true);

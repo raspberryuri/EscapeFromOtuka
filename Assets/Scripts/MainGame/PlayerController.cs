@@ -1,20 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace MainGame
 {
-    /// <summary>
-    /// プレイヤー制御クラス（体の左右回転 + カメラの上下回転を分離）
-    /// </summary>
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] private float _moveSpeed = 10f;
-        [SerializeField] private float _lookSpeed = 50f;
+        [SerializeField] private float _baseLookSpeed = 50f; // 感度なしの基本速度
 
-        [SerializeField] private Transform _playerBody;   // プレイヤー体（左右回転用）
-        [SerializeField] private Transform _playerCamera; // カメラ（上下回転用）
+        [SerializeField] private Transform _playerBody;
+        [SerializeField] private Transform _playerCamera;
 
         private PlayerInput _playerInput;
 
@@ -23,15 +19,29 @@ namespace MainGame
         private Vector2 _currentMoveInputValue = Vector2.zero;
         private Vector2 _currentLookInputValue = Vector2.zero;
 
-        private float _xRotation = 0f;  // カメラの上下回転角度
+        private float _xRotation = 0f;
 
         private const string ACTION_MOVE = "Move";
         private const string ACTION_LOOK = "Look";
         private const string ACTION_FIRE = "Fire";
 
+        public float mouseSensitivity = 1.0f;
+
+        private GameUIManager uiManager;
+
         private void Start()
         {
             Cursor.lockState = CursorLockMode.Locked;
+
+            uiManager = FindObjectOfType<GameUIManager>();
+            if (uiManager != null)
+            {
+                // UIから現在の感度を受け取る
+                mouseSensitivity = uiManager.GetCurrentMouseSensitivity();
+
+                // イベント登録：UIのスライダー変更時に感度を更新する
+                uiManager.OnMouseSensitivityChangedEvent += OnSensitivityChanged;
+            }
 
             if (TryGetComponent(out _playerInput))
             {
@@ -44,6 +54,19 @@ namespace MainGame
 
                 _playerInput.actions[ACTION_FIRE].started += _ => OnFire();
             }
+        }
+
+        private void OnDestroy()
+        {
+            if (uiManager != null)
+            {
+                uiManager.OnMouseSensitivityChangedEvent -= OnSensitivityChanged;
+            }
+        }
+
+        private void OnSensitivityChanged(float newSensitivity)
+        {
+            mouseSensitivity = newSensitivity;
         }
 
         private void Update()
@@ -71,11 +94,9 @@ namespace MainGame
 
         private void Look()
         {
-            // 左右回転はプレイヤー体（ヨー回転）
-            _playerBody.Rotate(Vector3.up * _currentLookInputValue.x * _lookSpeed * Time.deltaTime);
+            _playerBody.Rotate(Vector3.up * _currentLookInputValue.x * _baseLookSpeed * mouseSensitivity * Time.deltaTime);
 
-            // 上下回転はカメラ（ピッチ回転）
-            _xRotation -= _currentLookInputValue.y * _lookSpeed * Time.deltaTime;
+            _xRotation -= _currentLookInputValue.y * _baseLookSpeed * mouseSensitivity * Time.deltaTime;
             _xRotation = Mathf.Clamp(_xRotation, -89f, 89f);
 
             _playerCamera.localEulerAngles = new Vector3(_xRotation, 0f, 0f);

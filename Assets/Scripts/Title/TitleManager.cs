@@ -14,12 +14,17 @@ public class TitleManager : MonoBehaviour
     private void Start()
     {
         // BGM再生
-        AudioManager.Instance.PlayBGM(enAudioClip.BGM_default);
+        NovelSystems.NovelAudioManager.Instance.PlayBGM(NovelSystems.enAudioClip.BGM_default);
+
+        // カーソルを表示し、固定を解除
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
         // 次のシーンを事前ロードしておく（遷移はまだしない）
         preloadOperation = SceneManager.LoadSceneAsync(nextSceneIndex);
         preloadOperation.allowSceneActivation = false;
     }
+
 
     // ボタンイベントで呼ばれる関数
     public void OnStartButtonPressed()

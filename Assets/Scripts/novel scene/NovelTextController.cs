@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.IO;
 using TMPro;
 
@@ -31,16 +33,19 @@ namespace NovelSystems
         private float waitDuration = 0f;
 
         private enAudioClip currentTypingSE = enAudioClip.UI_Talk_narration;
+        private NovelUIManager _uiManager;
 
-        public void Initialize(TextAsset scenarioText, ICommandExecutor commandExecutor)
+        public void Initialize(TextAsset scenarioText, ICommandExecutor commandExecutor, NovelUIManager uiManager)
         {
             _commandExecutor = commandExecutor;
+            _uiManager = uiManager;
 
             lines = LoadLines(scenarioText);
             currentLineIndex = 0;
 
             StartCoroutine(ProcessCurrentLine());
         }
+
 
         private List<string> LoadLines(TextAsset textAsset)
         {
@@ -57,6 +62,7 @@ namespace NovelSystems
         {
             if (currentLineIndex >= lines.Count)
             {
+                OnLastLineFinished(); // ← 最終行処理を追加
                 OnScenarioEnd();
                 yield break;
             }
@@ -68,7 +74,6 @@ namespace NovelSystems
             {
                 ExecuteCommand(line);
 
-                // &waitなら一定時間待って次の行へ
                 if (waitDuration > 0f)
                 {
                     isWaiting = true;
@@ -98,16 +103,36 @@ namespace NovelSystems
             }
 
             SetCharacter(name);
+
+            // ログ追加
+            // ログ追加
+            if (_uiManager != null)
+            {
+                string logEntry;
+                if (!string.IsNullOrEmpty(name))
+                {
+                    // キャラクター名は太字＆色付き
+                    string colorCode = ColorUtility.ToHtmlStringRGB(nameObject.color);
+                    logEntry = $"\n<b><color=#{colorCode}>{name}</color></b>：{message}";
+                }
+                else
+                {
+                    // ナレーションは灰色＋斜体
+                    logEntry = $"\n<i><color=#FFFFFF>{message}</color></i>";
+                }
+                _uiManager.AddLog(logEntry);
+            }
+
+
             mainTextObject.text = message;
             displayedLength = 0;
             isTyping = true;
             lineComplete = false;
             mainTextObject.maxVisibleCharacters = 0;
 
-            // 文字送りループ
             while (displayedLength < message.Length)
             {
-                if (!isTyping) break; // クリックでスキップされたら抜ける
+                if (!isTyping) break;
 
                 timer += Time.deltaTime;
                 if (timer >= feedTime)
@@ -121,25 +146,20 @@ namespace NovelSystems
                 yield return null;
             }
 
-            // 全文表示
             displayedLength = message.Length;
             mainTextObject.maxVisibleCharacters = displayedLength;
             isTyping = false;
             lineComplete = true;
 
-            yield break; // 次はクリックで進行
+            yield break;
         }
 
-        /// <summary>
-        /// クリック時の挙動
-        /// </summary>
         public void OnClick()
         {
-            if (isWaiting) return; // &wait中は無視
+            if (isWaiting) return;
 
             if (isTyping)
             {
-                // 文字送り中 → 全文表示にスキップ
                 displayedLength = mainTextObject.text.Length;
                 mainTextObject.maxVisibleCharacters = displayedLength;
                 isTyping = false;
@@ -147,8 +167,8 @@ namespace NovelSystems
             }
             else if (lineComplete)
             {
-                // 文字送りが完了済み → 次の行へ
                 currentLineIndex++;
+                NovelAudioManager.Instance.OneShotSE(enAudioClip.UI_Talk_Next);
                 StartCoroutine(ProcessCurrentLine());
             }
         }
@@ -176,7 +196,10 @@ namespace NovelSystems
                     break;
                 case "&sceCh":
                     if (words.Length >= 2)
-                        NovelManager.SceneChanger(words[1]);
+                    {
+                        if (words[1] == "Title") NovelManager.Instance.OnHomeButtonClicked();
+                        else SceneManager.LoadScene(words[1]);
+                    }
                     break;
                 case "&wait":
                     if (words.Length >= 2 && float.TryParse(words[1], out float sec))
@@ -201,13 +224,10 @@ namespace NovelSystems
             }
         }
 
-        /// <summary>
-        /// キャラクター名に応じて色と文字送りSEを変更
-        /// </summary>
         private void SetCharacter(string name)
         {
             Color color = Color.white;
-            currentTypingSE = enAudioClip.UI_Talk_narration; // デフォルト
+            currentTypingSE = enAudioClip.UI_Talk_narration;
 
             foreach (var cs in characterSettings)
             {
@@ -228,6 +248,15 @@ namespace NovelSystems
         private void OnScenarioEnd()
         {
             Debug.Log("Scenario ended");
+        }
+
+        /// <summary>
+        /// 最終行に到達したときに呼ばれる関数
+        /// </summary>
+        protected virtual void OnLastLineFinished()
+        {
+            Debug.Log("TextAsset の最終行まで到達しました");
+            NovelManager.Instance.SetNovelActive(false);
         }
 
         public void ResetAll()

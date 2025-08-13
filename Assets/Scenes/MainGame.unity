@@ -2036,7 +2036,6 @@ GameObject:
   - component: {fileID: 1012714510}
   - component: {fileID: 1012714512}
   - component: {fileID: 1012714511}
-  - component: {fileID: 1012714513}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2277,18 +2276,6 @@ MonoBehaviour:
   GameCanvas: {fileID: 1749017239}
   MouseSensitivityPanel: {fileID: 2098962339}
   MouseSensitivitySlider: {fileID: 1754799747}
---- !u!114 &1012714513
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1012714505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62ed23a8eb2a10e489b5869335f8a0ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1035277137
 GameObject:
   m_ObjectHideFlags: 0
@@ -2914,7 +2901,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1136666312}
   - component: {fileID: 1136666311}
-  - component: {fileID: 1136666310}
   m_Layer: 0
   m_Name: Inputmanager
   m_TagString: Untagged
@@ -2922,18 +2908,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1136666310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136666309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62ed23a8eb2a10e489b5869335f8a0ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1136666311
 MonoBehaviour:
   m_ObjectHideFlags: 0

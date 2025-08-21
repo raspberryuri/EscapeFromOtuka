@@ -6,7 +6,8 @@ namespace MainGame
     [RequireComponent(typeof(Rigidbody))]
     public class Inputoperation : MonoBehaviour
     {
-        [SerializeField] private float speed = 0f;
+        [SerializeField] private float speed = 10f;
+        [SerializeField] private float lookSpeed = 1.0f; 
         [SerializeField] private Transform cameraTS;
 
         public static float mouseSensitivity = 1.0f;
@@ -51,12 +52,12 @@ namespace MainGame
 
         public void OnLook(InputAction.CallbackContext context)
         {
-            return;
+            Debug.Log("OnLookメソッドが呼ばれました！ マウスの入力値: " + context.ReadValue<Vector2>());
             if (isSensitivityUIActive) return; // UI表示中は視点操作無効化も可
 
             Vector2 lookInput = context.ReadValue<Vector2>();
-            rotationX += lookInput.x * mouseSensitivity;
-            rotationY += lookInput.y * mouseSensitivity;
+            rotationX += lookInput.x * lookSpeed * mouseSensitivity * Time.deltaTime * 100f; // deltaTimeを使う場合、値を大きく調整
+            rotationY += lookInput.y * lookSpeed * mouseSensitivity * Time.deltaTime * 100f;
             rotationY = Mathf.Clamp(rotationY, -90f, 90f);
 
             cameraTS.localRotation = Quaternion.Euler(-rotationY, 0f, 0f);
@@ -84,10 +85,25 @@ namespace MainGame
         {
             if (isSensitivityUIActive) return; // UI表示中は移動停止も可
 
-            Vector3 movement = new Vector3(movementX, 0.0f, movementY);
+            // カメラの前方ベクトルと右方ベクトルを取得
+            Vector3 camForward = cameraTS.forward;
+            Vector3 camRight = cameraTS.right;
 
-            rb.AddForce(cameraTS.forward * movementY * speed);
-            rb.AddForce(cameraTS.right * movementX * speed);
+            // Y軸の成分を0にして、水平なベクトルにする
+            camForward.y = 0;
+            camRight.y = 0;
+
+            // ベクトルの長さを1に戻す（正規化）
+            camForward.Normalize();
+            camRight.Normalize();
+
+            // 水平化されたベクトルを使って移動方向を計算
+            Vector3 moveDirection = (camForward * movementY + camRight * movementX).normalized;
+
+            // Rigidbodyで移動させる（AddForceよりもVelocityを直接変える方が操作性が良い場合が多い）
+            Vector3 targetVelocity = moveDirection * speed;
+            targetVelocity.y = rb.velocity.y; // Y軸の速度は現在の重力などによる速度を維持
+            rb.velocity = targetVelocity;
         }
     }
 }

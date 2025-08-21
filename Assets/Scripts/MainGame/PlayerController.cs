@@ -1,21 +1,25 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 
 namespace MainGame
 {
     public class PlayerController : MonoBehaviour
     {
-        [SerializeField] private float _moveSpeed = 10f;
-        [SerializeField] private float _baseLookSpeed = 50f; // 感度なしの基本速度
+        [SerializeField] private float _moveSpeed = 3.0f;
+        [SerializeField] private float _baseLookSpeed = 1.0f; // 感度なしの基本速度
 
+        [SerializeField] private float _gravity = -19.62f;
         [SerializeField] private Transform _playerBody;
         [SerializeField] private Transform _playerCamera;
 
         private PlayerInput _playerInput;
+        private CharacterController _Controller;
 
         private const int MaxRayDistance = 2;
 
+        private Vector3 _playerVelocity;
         private Vector2 _currentMoveInputValue = Vector2.zero;
         private Vector2 _currentLookInputValue = Vector2.zero;
 
@@ -31,29 +35,32 @@ namespace MainGame
 
         private void Start()
         {
+            _Controller = GetComponent<CharacterController>();
+
+            if (!TryGetComponent(out _playerInput))
+            {
+                Debug.LogError("PlayerInput component not found on this object. Please add it.");
+                return;
+            }
+
             Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
 
             uiManager = FindObjectOfType<GameUIManager>();
             if (uiManager != null)
             {
-                // UIから現在の感度を受け取る
                 mouseSensitivity = uiManager.GetCurrentMouseSensitivity();
-
-                // イベント登録：UIのスライダー変更時に感度を更新する
                 uiManager.OnMouseSensitivityChangedEvent += OnSensitivityChanged;
             }
 
-            if (TryGetComponent(out _playerInput))
-            {
-                _playerInput.actions[ACTION_LOOK].started += OnLook;
-                _playerInput.actions[ACTION_LOOK].performed += OnLook;
-                _playerInput.actions[ACTION_LOOK].canceled += OnLook;
+            _playerInput.actions[ACTION_LOOK].started += OnLook;
+            _playerInput.actions[ACTION_LOOK].performed += OnLook;
+            _playerInput.actions[ACTION_LOOK].canceled += OnLook;
 
-                _playerInput.actions[ACTION_MOVE].performed += OnMove;
-                _playerInput.actions[ACTION_MOVE].canceled += OnMove;
+            _playerInput.actions[ACTION_MOVE].performed += OnMove;
+            _playerInput.actions[ACTION_MOVE].canceled += OnMove;
 
-                _playerInput.actions[ACTION_FIRE].started += _ => OnFire();
-            }
+            _playerInput.actions[ACTION_FIRE].started += _ => OnFire();
         }
 
         private void OnDestroy()
@@ -71,9 +78,21 @@ namespace MainGame
 
         private void Update()
         {
-            Move();
-            Look();
+            bool isGrounded = _Controller.isGrounded;
+            if (isGrounded && _playerVelocity.y < 0)
+            {
+                _playerVelocity.y = -2f;
+            }
 
+            Vector3 moveDir = new Vector3(_currentMoveInputValue.x, 0, _currentMoveInputValue.y);
+            Vector3 horizontalVelocity = (_playerBody.rotation * moveDir) * _moveSpeed;
+
+            _playerVelocity.y += _gravity * Time.deltaTime;
+
+            Vector3 finalVelocity = horizontalVelocity + new Vector3(0, _playerVelocity.y, 0);
+            _Controller.Move(finalVelocity * Time.deltaTime);
+
+            Look();
             Ray ray = new Ray(transform.position, transform.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, MaxRayDistance))
             {
@@ -83,20 +102,15 @@ namespace MainGame
             {
                 GameUIManager.Isaimactive = false;
             }
+
         }
 
-        private void Move()
-        {
-            Vector3 moveDir = new Vector3(_currentMoveInputValue.x, 0, _currentMoveInputValue.y);
-            Vector3 move = _playerBody.rotation * moveDir;
-            transform.position += move * _moveSpeed * Time.deltaTime;
-        }
 
         private void Look()
         {
-            _playerBody.Rotate(Vector3.up * _currentLookInputValue.x * _baseLookSpeed * mouseSensitivity * Time.deltaTime);
+            _playerBody.Rotate(Vector3.up * _currentLookInputValue.x * _baseLookSpeed * mouseSensitivity);
 
-            _xRotation -= _currentLookInputValue.y * _baseLookSpeed * mouseSensitivity * Time.deltaTime;
+            _xRotation -= _currentLookInputValue.y * _baseLookSpeed * mouseSensitivity;
             _xRotation = Mathf.Clamp(_xRotation, -89f, 89f);
 
             _playerCamera.localEulerAngles = new Vector3(_xRotation, 0f, 0f);

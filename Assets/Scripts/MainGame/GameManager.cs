@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -126,7 +127,7 @@ namespace MainGame
 
             Time.timeScale = isActive ? 0 : 1;
             InputManager.Instance.SwitchActionMap(isActive ? GameMode.InputField : GameMode.MainGame);
-            gameUIManager.OnInputField(isActive);
+            gameUIManager.OnInputField(isActive, InputPanelID);
         }
 
         public void OnTextInputing()
@@ -145,6 +146,7 @@ namespace MainGame
 
             Transform touch = tateanaPanel.transform.Find("torch");
             Transform touchOn = tateanaPanel.transform.Find("torchOn");
+            Transform InputImage = tateanaPanel.transform.Find("InputImage_" + index);
 
             if (touch != null) touch.gameObject.SetActive(false);
             if (touchOn != null) touchOn.gameObject.SetActive(true);
@@ -162,7 +164,11 @@ namespace MainGame
             string userInput = inputField.text.Trim();
             string correctAnswer = correctAnswers[InputPanelID];
 
-            if (userInput.Equals(correctAnswer, System.StringComparison.OrdinalIgnoreCase))
+            // 入力と答えをひらがなに統一して比較（英語は小文字化）
+            string normalizedInput = ToHiragana(userInput).ToLowerInvariant();
+            string normalizedAnswer = ToHiragana(correctAnswer).ToLowerInvariant();
+
+            if (normalizedInput == normalizedAnswer)
             {
                 HandleCorrectAnswer(InputPanelID);
             }
@@ -215,6 +221,31 @@ namespace MainGame
         {
             ChangeInputMode(false);
             InputManager.Instance?.SwitchActionMap(GameMode.NovelGame);
+        }
+
+        // ====== ひらがな統一変換 ======
+        private string ToHiragana(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+
+            // 全角に統一
+            string normalized = input.Normalize(NormalizationForm.FormKC);
+
+            var sb = new StringBuilder(normalized.Length);
+            foreach (char c in normalized)
+            {
+                if (c >= 'ァ' && c <= 'ン')
+                {
+                    sb.Append((char)(c - 'ァ' + 'ぁ')); // カタカナ→ひらがな
+                }
+                else if (c == 'ヵ') sb.Append('か');
+                else if (c == 'ヶ') sb.Append('け');
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
         }
     }
 }

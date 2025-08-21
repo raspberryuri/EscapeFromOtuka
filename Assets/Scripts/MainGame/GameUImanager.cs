@@ -13,6 +13,10 @@ namespace MainGame
         [SerializeField] private Sprite UnactiveAim;
         [SerializeField] private CanvasGroup InputFieldPanel;
         [SerializeField] private CanvasGroup GameCanvas;
+        [SerializeField] private RawImage InputPanelRawImage;
+        [SerializeField] private Texture InputPanel1;
+        [SerializeField] private Texture InputPanel2;
+        [SerializeField] private Texture InputPanel3;
 
         // 新規追加：マウス感度調整UIのCanvasGroupとスライダー
         [SerializeField] private CanvasGroup MouseSensitivityPanel;
@@ -61,13 +65,33 @@ namespace MainGame
             }
         }
 
-        public void OnInputField(bool active)
+        public void ChengeInputPanel(int index)
+        {
+            switch (index)
+            {
+                case 0://高床
+                    InputPanelRawImage.texture = InputPanel1;
+                    break;
+                case 1:
+                    InputPanelRawImage.texture = InputPanel2;
+                    break;
+                case 2:
+                    InputPanelRawImage.texture = InputPanel3;
+                    break;
+                default:
+                    InputPanelRawImage.texture = null;
+                    break;
+            }
+        }
+
+        public void OnInputField(bool active,int panelindex)
         {
             Debug.Log($"InputField {(active ? "表示" : "非表示")} にしました");
 
             InputFieldPanel.interactable = active;
             InputFieldPanel.blocksRaycasts = active;
             InputFieldPanel.alpha = active ? 1 : 0;
+            ChengeInputPanel(panelindex);
 
             GameCanvas.interactable = !active;
             GameCanvas.blocksRaycasts = !active;

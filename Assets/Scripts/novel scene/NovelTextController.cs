@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.IO;
 using TMPro;
 
 namespace NovelSystems
@@ -13,7 +14,7 @@ namespace NovelSystems
         private ICommandExecutor _commandExecutor;
 
         [Header("UI")]
-        [SerializeField] private TextMeshProUGUI mainTextObject;
+        [SerializeField] private RubyTextMeshProUGUI mainTextObject;
         [SerializeField] private TextMeshProUGUI nameObject;
 
         [Header("文字送り設定")]
@@ -46,7 +47,6 @@ namespace NovelSystems
             StartCoroutine(ProcessCurrentLine());
         }
 
-
         private List<string> LoadLines(TextAsset textAsset)
         {
             List<string> result = new List<string>();
@@ -58,11 +58,33 @@ namespace NovelSystems
             return result;
         }
 
+
+        /// <summary>
+        /// 括弧を自動でルビに変換する（漢字が連続している場合もすべて対象）
+        /// 例: 漢字体験(かんじたいけん) -> <ruby>漢字体験<rt>かんじたいけん</rt></ruby>
+        /// </summary>
+        private string ConvertParenthesesToRuby(string input)
+        {
+            // 漢字1文字以上 + 括弧内の文字列
+            string pattern = @"([一-龯]+)\(([^()]+)\)";
+
+            string result = Regex.Replace(input, pattern, "<ruby>$1<rt>$2</rt></ruby>");
+            return result;
+        }
+
+        /// <summary>
+        /// 漢字判定
+        /// </summary>
+        private bool IsKanji(char c)
+        {
+            return (c >= '\u4E00' && c <= '\u9FFF');
+        }
+
         private IEnumerator ProcessCurrentLine()
         {
             if (currentLineIndex >= lines.Count)
             {
-                OnLastLineFinished(); // ← 最終行処理を追加
+                OnLastLineFinished();
                 OnScenarioEnd();
                 yield break;
             }
@@ -104,33 +126,32 @@ namespace NovelSystems
 
             SetCharacter(name);
 
-            // ログ追加
+            // 括弧をルビに変換
+            message = ConvertParenthesesToRuby(message);
+
             // ログ追加
             if (_uiManager != null)
             {
                 string logEntry;
                 if (!string.IsNullOrEmpty(name))
                 {
-                    // キャラクター名は太字＆色付き
                     string colorCode = ColorUtility.ToHtmlStringRGB(nameObject.color);
-                    logEntry = $"\n<b><color=#{colorCode}>{name}</color></b>：{message}";
+                    logEntry = $"\n<b><color=#{colorCode}>{name}</color></b>：{StripTags(message)}";
                 }
                 else
                 {
-                    // ナレーションは灰色＋斜体
-                    logEntry = $"\n<i><color=#FFFFFF>{message}</color></i>";
+                    logEntry = $"\n<i><color=#FFFFFF>{StripTags(message)}</color></i>";
                 }
                 _uiManager.AddLog(logEntry);
             }
 
-
-            mainTextObject.text = message;
+            mainTextObject.uneditedText = message;
             displayedLength = 0;
             isTyping = true;
             lineComplete = false;
-            mainTextObject.maxVisibleCharacters = 0;
 
-            while (displayedLength < message.Length)
+            // 文字送り処理
+            while (displayedLength < mainTextObject.textInfo.characterCount)
             {
                 if (!isTyping) break;
 
@@ -140,18 +161,15 @@ namespace NovelSystems
                     timer = 0f;
                     displayedLength++;
                     mainTextObject.maxVisibleCharacters = displayedLength;
-
                     NovelAudioManager.Instance?.OneShotSE(currentTypingSE);
                 }
                 yield return null;
             }
 
-            displayedLength = message.Length;
+            displayedLength = mainTextObject.textInfo.characterCount;
             mainTextObject.maxVisibleCharacters = displayedLength;
             isTyping = false;
             lineComplete = true;
-
-            yield break;
         }
 
         public void OnClick()
@@ -160,7 +178,7 @@ namespace NovelSystems
 
             if (isTyping)
             {
-                displayedLength = mainTextObject.text.Length;
+                displayedLength = mainTextObject.textInfo.characterCount;
                 mainTextObject.maxVisibleCharacters = displayedLength;
                 isTyping = false;
                 lineComplete = true;
@@ -184,12 +202,10 @@ namespace NovelSystems
             switch (words[0])
             {
                 case "&img":
-                    if (words.Length >= 3)
-                        _commandExecutor.PutImage(words[1], words[2]);
+                    if (words.Length >= 3) _commandExecutor.PutImage(words[1], words[2]);
                     break;
                 case "&rmimg":
-                    if (words.Length >= 2)
-                        _commandExecutor.RemoveImage(words[1]);
+                    if (words.Length >= 2) _commandExecutor.RemoveImage(words[1]);
                     break;
                 case "&rmALL":
                     _commandExecutor.RemoveAllImages();
@@ -250,9 +266,6 @@ namespace NovelSystems
             Debug.Log("Scenario ended");
         }
 
-        /// <summary>
-        /// 最終行に到達したときに呼ばれる関数
-        /// </summary>
         protected virtual void OnLastLineFinished()
         {
             Debug.Log("TextAsset の最終行まで到達しました");
@@ -270,6 +283,14 @@ namespace NovelSystems
             lineComplete = false;
             waitDuration = 0f;
             isWaiting = false;
+        }
+
+        /// <summary>
+        /// ログ用にタグを除去して表示用文字列を作る
+        /// </summary>
+        private string StripTags(string input)
+        {
+            return Regex.Replace(input, "<.*?>", "");
         }
     }
 

@@ -1,0 +1,17 @@
+{
+    "name": "RubyTextMeshPro",
+    "rootNamespace": "",
+    "references": [
+        "Unity.TextMeshPro",
+        "jp.netsis.rubytext.abstractions"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

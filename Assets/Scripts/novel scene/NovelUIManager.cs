@@ -9,7 +9,7 @@ namespace NovelSystems
     {
         [Header("UI éQè∆")]
         [SerializeField] private GameObject logPanel;
-        [SerializeField] private TextMeshProUGUI context;
+        [SerializeField] private RubyTextMeshProUGUI context;
         [SerializeField] private ScrollRect scrollRect;
         [SerializeField] private GameObject OpenbackLog;
         [SerializeField] private GameObject ClosebackLog;

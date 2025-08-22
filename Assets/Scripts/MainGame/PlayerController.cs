@@ -7,14 +7,14 @@ namespace MainGame
 {
     public class PlayerController : MonoBehaviour
     {
-        [SerializeField] private float _moveSpeed = 3.0f;
-        [SerializeField] private float _baseLookSpeed = 1.0f; // 感度なしの基本速度
+        [SerializeField] private float _moveSpeed = 10f;
+        [SerializeField] private float _baseLookSpeed = 50f; // 感度なしの基本速度
 
         [SerializeField] private float _gravity = -19.62f;
         [SerializeField] private Transform _playerBody;
         [SerializeField] private Transform _playerCamera;
 
-        private PlayerInput _playerInput;
+
         private CharacterController _Controller;
 
         private const int MaxRayDistance = 2;
@@ -37,11 +37,7 @@ namespace MainGame
         {
             _Controller = GetComponent<CharacterController>();
 
-            if (!TryGetComponent(out _playerInput))
-            {
-                Debug.LogError("PlayerInput component not found on this object. Please add it.");
-                return;
-            }
+            
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -53,14 +49,7 @@ namespace MainGame
                 uiManager.OnMouseSensitivityChangedEvent += OnSensitivityChanged;
             }
 
-            _playerInput.actions[ACTION_LOOK].started += OnLook;
-            _playerInput.actions[ACTION_LOOK].performed += OnLook;
-            _playerInput.actions[ACTION_LOOK].canceled += OnLook;
-
-            _playerInput.actions[ACTION_MOVE].performed += OnMove;
-            _playerInput.actions[ACTION_MOVE].canceled += OnMove;
-
-            _playerInput.actions[ACTION_FIRE].started += _ => OnFire();
+           
         }
 
         private void OnDestroy()
@@ -108,9 +97,9 @@ namespace MainGame
 
         private void Look()
         {
-            _playerBody.Rotate(Vector3.up * _currentLookInputValue.x * _baseLookSpeed * mouseSensitivity);
+            _playerBody.Rotate(Vector3.up * _currentLookInputValue.x * _baseLookSpeed * mouseSensitivity * Time.deltaTime);
 
-            _xRotation -= _currentLookInputValue.y * _baseLookSpeed * mouseSensitivity;
+            _xRotation -= _currentLookInputValue.y * _baseLookSpeed * mouseSensitivity * Time.deltaTime;
             _xRotation = Mathf.Clamp(_xRotation, -89f, 89f);
 
             _playerCamera.localEulerAngles = new Vector3(_xRotation, 0f, 0f);

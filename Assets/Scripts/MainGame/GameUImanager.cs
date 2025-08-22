@@ -27,7 +27,7 @@ namespace MainGame
         public event MouseSensitivityChangedHandler OnMouseSensitivityChangedEvent;
 
         // 現在のマウス感度（デフォルト1.0f）
-        private float currentMouseSensitivity = 1.0f;
+        private float currentMouseSensitivity = 0.5f;
 
         void Start()
         {

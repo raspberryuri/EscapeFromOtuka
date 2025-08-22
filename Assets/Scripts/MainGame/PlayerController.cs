@@ -25,7 +25,7 @@ namespace MainGame
         private const string ACTION_LOOK = "Look";
         private const string ACTION_FIRE = "Fire";
 
-        public float mouseSensitivity = 1.0f;
+        public float mouseSensitivity = 0.5f;
 
         private GameUIManager uiManager;
 

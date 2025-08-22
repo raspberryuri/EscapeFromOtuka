@@ -146,6 +146,7 @@ namespace NovelSystems
             }
 
             mainTextObject.uneditedText = message;
+            mainTextObject.maxVisibleCharacters = 0;
             displayedLength = 0;
             isTyping = true;
             lineComplete = false;

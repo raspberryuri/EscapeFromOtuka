@@ -12,7 +12,6 @@ namespace MainGame
         [SerializeField] private Transform _playerBody;
         [SerializeField] private Transform _playerCamera;
 
-        private PlayerInput _playerInput;
 
         private const int MaxRayDistance = 2;
 
@@ -43,17 +42,6 @@ namespace MainGame
                 uiManager.OnMouseSensitivityChangedEvent += OnSensitivityChanged;
             }
 
-            if (TryGetComponent(out _playerInput))
-            {
-                _playerInput.actions[ACTION_LOOK].started += OnLook;
-                _playerInput.actions[ACTION_LOOK].performed += OnLook;
-                _playerInput.actions[ACTION_LOOK].canceled += OnLook;
-
-                _playerInput.actions[ACTION_MOVE].performed += OnMove;
-                _playerInput.actions[ACTION_MOVE].canceled += OnMove;
-
-                _playerInput.actions[ACTION_FIRE].started += _ => OnFire();
-            }
         }
 
         private void OnDestroy()

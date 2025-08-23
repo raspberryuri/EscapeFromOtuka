@@ -17,13 +17,6 @@ public class CreditManager : MonoBehaviour
 
 
 
-    void Update()
-    {
-        if (isCreditOpen && Input.GetKeyDown(KeyCode.Escape))
-        {
-            CloseCredit();
-        }
-    }
     public void OpenCredit()
     {
         creditPanel.SetActive(true);

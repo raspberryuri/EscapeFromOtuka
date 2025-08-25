@@ -347,7 +347,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 33.555145}
+  m_margin: {x: -82.29175, y: 14.838257, z: -67.59656, w: 51.69081}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -722,8 +722,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1448270886061889020, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448270886061889020, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448270886061889020, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448270886061889020, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: -550
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1448270886061889020, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1456777267460863815, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_SizeDelta.y
@@ -819,11 +835,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4663890825844590436, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: -477
       objectReference: {fileID: 0}
     - target: {fileID: 4663890825844590436, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -167
       objectReference: {fileID: 0}
     - target: {fileID: 4688578728633054382, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_LocalScale.x
@@ -839,11 +855,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4709768017708570288, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -19
+      value: -291
       objectReference: {fileID: 0}
     - target: {fileID: 4939070086766628908, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 102.2
+      value: -169.80078
       objectReference: {fileID: 0}
     - target: {fileID: 5269118669831309548, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_IsActive
@@ -874,8 +890,28 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8011004456491916215, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8011004456491916215, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 9129b428534e47342a6b2eef55f53545, type: 3}
+    - target: {fileID: 8011004456491916215, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_Color.a
       value: 0.7490196
+      objectReference: {fileID: 0}
+    - target: {fileID: 8011004456491916215, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8011004456491916215, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8011004456491916215, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_Color.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8151991374978542706, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_fontAsset
@@ -931,24 +967,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_text
-      value: 
+      value: "\u4E3B\u4EBA\u516C"
+      objectReference: {fileID: 0}
+    - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_fontSize
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_margin.w
-      value: 15.150009
+      value: 31.75
       objectReference: {fileID: 0}
     - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_margin.x
       value: -112.078354
       objectReference: {fileID: 0}
     - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_margin.y
+      value: 27.672668
+      objectReference: {fileID: 0}
+    - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_margin.z
-      value: -205.893
+      value: 33.423462
       objectReference: {fileID: 0}
     - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_fontAsset
       value: 
       objectReference: {fileID: 11400000, guid: a6a601b36ac4bfe49b5539f77565fa23, type: 2}
+    - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 8932973236117660520, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_sharedMaterial
       value: 
@@ -1252,10 +1300,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1280, y: 720}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3

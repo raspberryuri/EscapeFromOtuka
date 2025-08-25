@@ -43,6 +43,8 @@ public class TitleManager : MonoBehaviour
         StartCoroutine(ActivateSceneAfterDelay());
     }
 
+
+
     private IEnumerator ActivateSceneAfterDelay()
     {
         yield return new WaitForSeconds(delaySeconds);

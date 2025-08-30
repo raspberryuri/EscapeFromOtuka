@@ -14,7 +14,6 @@ namespace MainGame
         [SerializeField] private Transform _playerBody;
         [SerializeField] private Transform _playerCamera;
 
-
         private CharacterController _Controller;
 
         private const int MaxRayDistance = 2;

@@ -5898,7 +5898,6 @@ GameObject:
   - component: {fileID: 280328152}
   - component: {fileID: 280328151}
   - component: {fileID: 280328150}
-  - component: {fileID: 280328154}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5980,23 +5979,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1678057093}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &280328154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 280328149}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 591826e452343804098d7b7a3002d68b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _moveSpeed: 10
-  _baseLookSpeed: 50
-  _playerBody: {fileID: 1678057093}
-  _playerCamera: {fileID: 280328152}
-  mouseSensitivity: 0.5
 --- !u!1001 &282124976
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8448,7 +8430,6 @@ MonoBehaviour:
   mainTextObject: {fileID: 0}
   nameObject: {fileID: 614584435}
   feedTime: 0.05
-  clickInterval: 0.2
   characterSettings:
   - characterName: "\u3000"
     color: {r: 1, g: 1, b: 1, a: 0}
@@ -23097,8 +23078,8 @@ MonoBehaviour:
     m_ActionName: NovelAction/Click[/Mouse/leftButton]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1678057088}
-        m_TargetAssemblyTypeName: Inputoperation, Assembly-CSharp
+      - m_Target: {fileID: 1678057094}
+        m_TargetAssemblyTypeName: MainGame.PlayerController, Assembly-CSharp
         m_MethodName: OnMove
         m_Mode: 0
         m_Arguments:
@@ -23113,8 +23094,8 @@ MonoBehaviour:
     m_ActionName: Player/Move[/DualShock4GamepadHID/leftStick,/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 280328154}
-        m_TargetAssemblyTypeName: Upft.UpftPlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1678057094}
+        m_TargetAssemblyTypeName: MainGame.PlayerController, Assembly-CSharp
         m_MethodName: OnLook
         m_Mode: 0
         m_Arguments:
@@ -23129,10 +23110,10 @@ MonoBehaviour:
     m_ActionName: Player/Look[/DualShock4GamepadHID/rightStick,/Mouse/delta]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 280328154}
-        m_TargetAssemblyTypeName: Upft.UpftPlayerController, Assembly-CSharp
+      - m_Target: {fileID: 1678057094}
+        m_TargetAssemblyTypeName: MainGame.PlayerController, Assembly-CSharp
         m_MethodName: OnFire
-        m_Mode: 1
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -36975,6 +36956,7 @@ GameObject:
   - component: {fileID: 1678057090}
   - component: {fileID: 1678057089}
   - component: {fileID: 1678057088}
+  - component: {fileID: 1678057094}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -36989,7 +36971,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1678057087}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 741b827242af6934da3568ff205ae944, type: 3}
   m_Name: 
@@ -37113,6 +37095,23 @@ Transform:
   - {fileID: 280328152}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1678057094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678057087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 591826e452343804098d7b7a3002d68b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  playerBody: {fileID: 1678057093}
+  playerCamera: {fileID: 280328152}
+  mouseSensitivity: 0.5
+  mouseSensitivityCanvas: {fileID: 2098962338}
 --- !u!1001 &1678081450
 PrefabInstance:
   m_ObjectHideFlags: 0

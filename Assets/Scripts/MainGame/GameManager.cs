@@ -28,7 +28,8 @@ namespace MainGame
 
         public static int InputPanelID = 0; //0:高床, 1:竪穴迷路, 2:竪穴ツボ
 
-        private bool isClearing = false; // クリア遷移中フラグ
+        private bool isClearing = false;     // クリア遷移中フラグ
+        private bool clearPending = false;   // クリア保留フラグ
 
         // ====== プロパティ ======
         public bool IsTimeUp => timer >= maxTimeSec;
@@ -64,6 +65,17 @@ namespace MainGame
             {
                 SceneManager.LoadScene(4);//ゲームオーバーシナリオへ
             }
+
+            // ==== クリア待ち処理 ====
+            if (clearPending && !isClearing)
+            {
+                if (InputManager.Instance != null &&
+                    InputManager.Instance.CurrentMode == GameMode.MainGame)
+                {
+                    StartCoroutine(DelayedClearTransition());
+                    clearPending = false;
+                }
+            }
         }
 
         // ====== タイマー操作 ======
@@ -89,14 +101,14 @@ namespace MainGame
         public void SetCorrect(int index)
         {
             if (index < 0 || index >= correctFlags.Length) return;
-
             if (correctFlags[index]) return;
 
             correctFlags[index] = true;
 
             if (Score >= MaxScore && !isClearing)
             {
-                StartCoroutine(DelayedClearTransition());
+                // すぐに遷移せず、MainGameに戻ったときに実行するよう保留
+                clearPending = true;
             }
         }
 

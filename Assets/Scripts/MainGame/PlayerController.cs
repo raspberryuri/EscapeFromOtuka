@@ -1,68 +1,135 @@
-using System;
-using UnityEngine;
+Ôªøusing UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace MainGame
 {
+    [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : MonoBehaviour
     {
-        [SerializeField] private float _moveSpeed = 10f;
-        [SerializeField] private float _baseLookSpeed = 50f; // ä¥ìxÇ»ÇµÇÃäÓñ{ë¨ìx
+        [Header("ÁßªÂãïË®≠ÂÆö")]
+        [SerializeField] private float moveSpeed = 10f;           // ‚Üê „Ç§„É≥„Çπ„Éö„ÇØ„Çø„Éº„ÅßË®≠ÂÆöÂèØËÉΩ
+        [SerializeField] private Transform playerBody;
+        [SerializeField] private Transform playerCamera;
 
-        [SerializeField] private Transform _playerBody;
-        [SerializeField] private Transform _playerCamera;
+        [Header("„Éû„Ç¶„ÇπÊÑüÂ∫¶")]
+        [SerializeField] private float mouseSensitivity = 1.0f;   // ‚Üê „Ç§„É≥„Çπ„Éö„ÇØ„Çø„Éº„ÅßË®≠ÂÆöÂèØËÉΩ
+        [SerializeField] private GameObject mouseSensitivityCanvas;
 
+        private Rigidbody rb;
+        private Vector2 moveInput = Vector2.zero;
+        private Vector2 lookInput = Vector2.zero;
+
+        private float xRotation = 0f;
+        private bool isSensitivityUIActive = false;
 
         private const int MaxRayDistance = 2;
 
-        private Vector2 _currentMoveInputValue = Vector2.zero;
-        private Vector2 _currentLookInputValue = Vector2.zero;
-
-        private float _xRotation = 0f;
-
-        private const string ACTION_MOVE = "Move";
-        private const string ACTION_LOOK = "Look";
-        private const string ACTION_FIRE = "Fire";
-
-        public float mouseSensitivity = 0.5f;
-
-        private GameUIManager uiManager;
-
-        private void Start()
+        void Start()
         {
+            rb = GetComponent<Rigidbody>();
+            rb.freezeRotation = true;
+            rb.useGravity = true;
+
             Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
 
-            uiManager = FindObjectOfType<GameUIManager>();
-            if (uiManager != null)
-            {
-                // UIÇ©ÇÁåªç›ÇÃä¥ìxÇéÛÇØéÊÇÈ
-                mouseSensitivity = uiManager.GetCurrentMouseSensitivity();
-
-                // ÉCÉxÉìÉgìoò^ÅFUIÇÃÉXÉâÉCÉ_Å[ïœçXéûÇ…ä¥ìxÇçXêVÇ∑ÇÈ
-                uiManager.OnMouseSensitivityChangedEvent += OnSensitivityChanged;
-            }
-
-        }
-
-        private void OnDestroy()
-        {
-            if (uiManager != null)
-            {
-                uiManager.OnMouseSensitivityChangedEvent -= OnSensitivityChanged;
-            }
-        }
-
-        private void OnSensitivityChanged(float newSensitivity)
-        {
-            mouseSensitivity = newSensitivity;
+            if (mouseSensitivityCanvas != null)
+                mouseSensitivityCanvas.SetActive(false);
         }
 
         private void Update()
         {
-            Move();
-            Look();
+            if (!isSensitivityUIActive)
+            {
+                Look();
+                AimCheck();
+            }
+        }
 
-            Ray ray = new Ray(transform.position, transform.forward);
+        private void FixedUpdate()
+        {
+            if (!isSensitivityUIActive)
+            {
+                Move();
+            }
+            else
+            {
+                rb.velocity = new Vector3(0, rb.velocity.y, 0);
+            }
+        }
+
+        // ==================
+        // ÂÖ•Âäõ„Ç§„Éô„É≥„Éà
+        // ==================
+        public void OnMove(InputAction.CallbackContext context)
+        {
+            moveInput = context.ReadValue<Vector2>();
+        }
+
+        public void OnLook(InputAction.CallbackContext context)
+        {
+            if (!isSensitivityUIActive)
+            {
+                lookInput = context.ReadValue<Vector2>();
+            }
+            else
+            {
+                lookInput = Vector2.zero;
+            }
+        }
+
+        public void OnFire(InputAction.CallbackContext context)
+        {
+            if (context.performed && !isSensitivityUIActive)
+            {
+                Ray ray = new Ray(playerCamera.position, playerCamera.forward);
+                if (Physics.Raycast(ray, out RaycastHit hit, MaxRayDistance))
+                {
+                    if (hit.collider.TryGetComponent(out TargetHit target))
+                    {
+                        target.TriggerHit();
+                    }
+                }
+            }
+        }
+
+        public void OnToggleSensitivityUI(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+            {
+                isSensitivityUIActive = !isSensitivityUIActive;
+
+                if (mouseSensitivityCanvas != null)
+                    mouseSensitivityCanvas.SetActive(isSensitivityUIActive);
+
+                Cursor.lockState = isSensitivityUIActive ? CursorLockMode.None : CursorLockMode.Locked;
+                Cursor.visible = isSensitivityUIActive;
+            }
+        }
+
+        // ==================
+        // ÂÆüÈöõ„ÅÆÂá¶ÁêÜ
+        // ==================
+        private void Move()
+        {
+            Vector3 moveDir = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+            Vector3 moveVelocity = (playerBody.rotation * moveDir) * moveSpeed;
+            rb.velocity = new Vector3(moveVelocity.x, rb.velocity.y, moveVelocity.z);
+        }
+
+        private void Look()
+        {
+            playerBody.Rotate(Vector3.up * lookInput.x * mouseSensitivity);
+
+            xRotation -= lookInput.y * mouseSensitivity;
+            xRotation = Mathf.Clamp(xRotation, -89f, 89f);
+
+            playerCamera.localEulerAngles = new Vector3(xRotation, 0f, 0f);
+        }
+
+        private void AimCheck()
+        {
+            Ray ray = new Ray(playerCamera.position, playerCamera.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, MaxRayDistance))
             {
                 GameUIManager.Isaimactive = hit.collider.TryGetComponent(out TargetHit target);
@@ -70,45 +137,6 @@ namespace MainGame
             else
             {
                 GameUIManager.Isaimactive = false;
-            }
-        }
-
-        private void Move()
-        {
-            Vector3 moveDir = new Vector3(_currentMoveInputValue.x, 0, _currentMoveInputValue.y);
-            Vector3 move = _playerBody.rotation * moveDir;
-            transform.position += move * _moveSpeed * Time.deltaTime;
-        }
-
-        private void Look()
-        {
-            _playerBody.Rotate(Vector3.up * _currentLookInputValue.x * _baseLookSpeed * mouseSensitivity * Time.deltaTime);
-
-            _xRotation -= _currentLookInputValue.y * _baseLookSpeed * mouseSensitivity * Time.deltaTime;
-            _xRotation = Mathf.Clamp(_xRotation, -89f, 89f);
-
-            _playerCamera.localEulerAngles = new Vector3(_xRotation, 0f, 0f);
-        }
-
-        public void OnLook(InputAction.CallbackContext context)
-        {
-            _currentLookInputValue = context.ReadValue<Vector2>();
-        }
-
-        public void OnMove(InputAction.CallbackContext context)
-        {
-            _currentMoveInputValue = context.ReadValue<Vector2>();
-        }
-
-        public void OnFire()
-        {
-            Ray ray = new Ray(transform.position, transform.forward);
-            if (Physics.Raycast(ray, out RaycastHit hit, MaxRayDistance))
-            {
-                if (hit.collider.TryGetComponent(out TargetHit target))
-                {
-                    target.TriggerHit();
-                }
             }
         }
     }

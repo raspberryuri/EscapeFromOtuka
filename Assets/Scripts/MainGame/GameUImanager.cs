@@ -27,7 +27,7 @@ namespace MainGame
         public event MouseSensitivityChangedHandler OnMouseSensitivityChangedEvent;
 
         // 現在のマウス感度（デフォルト1.0f）
-        private float currentMouseSensitivity = 0.5f;
+        private float currentMouseSensitivity;
 
         void Start()
         {
@@ -36,8 +36,10 @@ namespace MainGame
 
             if (MouseSensitivitySlider != null)
             {
-                MouseSensitivitySlider.minValue = 0.1f;
-                MouseSensitivitySlider.maxValue = 5.0f;
+                Debug.LogWarning("A");
+                MouseSensitivitySlider.minValue = 1f;
+                MouseSensitivitySlider.maxValue = 50f;
+                currentMouseSensitivity = MouseSensitivitySlider.maxValue;
                 MouseSensitivitySlider.value = currentMouseSensitivity;
 
                 MouseSensitivitySlider.onValueChanged.AddListener(OnMouseSensitivityChanged);
@@ -123,7 +125,7 @@ namespace MainGame
         private void OnMouseSensitivityChanged(float value)
         {
             currentMouseSensitivity = value;
-            Inputoperation.mouseSensitivity = value;
+            PlayerController.mouseSensitivity = value;
 
             // 感度変更を通知
             OnMouseSensitivityChangedEvent?.Invoke(value);

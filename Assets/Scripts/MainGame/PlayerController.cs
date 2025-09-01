@@ -12,8 +12,7 @@ namespace MainGame
         [SerializeField] private Transform playerCamera;
 
         [Header("マウス感度")]
-        [SerializeField] private float mouseSensitivity = 1.0f;   // ← インスペクターで設定可能
-        [SerializeField] private GameObject mouseSensitivityCanvas;
+        [SerializeField] public static float mouseSensitivity = 50;   // ← インスペクターで設定可能
 
         private Rigidbody rb;
         private Vector2 moveInput = Vector2.zero;
@@ -33,8 +32,6 @@ namespace MainGame
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
 
-            if (mouseSensitivityCanvas != null)
-                mouseSensitivityCanvas.SetActive(false);
         }
 
         private void Update()
@@ -99,8 +96,6 @@ namespace MainGame
             {
                 isSensitivityUIActive = !isSensitivityUIActive;
 
-                if (mouseSensitivityCanvas != null)
-                    mouseSensitivityCanvas.SetActive(isSensitivityUIActive);
 
                 Cursor.lockState = isSensitivityUIActive ? CursorLockMode.None : CursorLockMode.Locked;
                 Cursor.visible = isSensitivityUIActive;
@@ -119,13 +114,17 @@ namespace MainGame
 
         private void Look()
         {
-            playerBody.Rotate(Vector3.up * lookInput.x * mouseSensitivity);
+            float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
+            float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
 
-            xRotation -= lookInput.y * mouseSensitivity;
+            playerBody.Rotate(Vector3.up * mouseX);
+
+            xRotation -= mouseY;
             xRotation = Mathf.Clamp(xRotation, -89f, 89f);
 
             playerCamera.localEulerAngles = new Vector3(xRotation, 0f, 0f);
         }
+
 
         private void AimCheck()
         {

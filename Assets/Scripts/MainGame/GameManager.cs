@@ -52,7 +52,7 @@ namespace MainGame
             NovelSystems.NovelAudioManager.Instance.PlayBGM(NovelSystems.enAudioClip.GameBGM_MainBGM);
             InputManager.Instance?.SwitchActionMap(GameMode.MainGame);
             NovelSystems.NovelManager.Instance.returnActionMap = GameMode.MainGame;
-            NovelSystems.NovelManager.Instance.SetHomeAndLogButtonsActive(false);
+            NovelSystems.NovelManager.Instance.SetHomeAndLogButtonsActive(true);
         }
 
         private void Update()

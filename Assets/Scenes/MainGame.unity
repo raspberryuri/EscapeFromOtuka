@@ -21217,6 +21217,34 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2161183538505207883, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161183538505207883, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161183538505207883, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161183538505207883, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161183538505207883, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161183538505207883, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -27.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2161183538505207883, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 27.5
+      objectReference: {fileID: 0}
     - target: {fileID: 2233448880971726549, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_text
       value: aaa
@@ -21365,6 +21393,14 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5288984305897292543, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_VertexColorAlwaysGammaSpace
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5288984305897292543, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 5314663433233344960, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -21376,6 +21412,18 @@ PrefabInstance:
     - target: {fileID: 5314663433233344960, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6319114138492614534, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1012714511}
+    - target: {fileID: 6319114138492614534, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnReturnTitle
+      objectReference: {fileID: 0}
+    - target: {fileID: 6319114138492614534, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MainGame.GameManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6837854837873368135, guid: 597b789f6d07de447ab7fc73fd58433e, type: 3}
       propertyPath: m_IsActive
@@ -44697,7 +44745,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2098962338}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0

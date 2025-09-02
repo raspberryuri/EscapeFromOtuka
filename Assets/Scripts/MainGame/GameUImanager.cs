@@ -36,7 +36,6 @@ namespace MainGame
 
             if (MouseSensitivitySlider != null)
             {
-                Debug.LogWarning("A");
                 MouseSensitivitySlider.minValue = 1f;
                 MouseSensitivitySlider.maxValue = 50f;
                 currentMouseSensitivity = MouseSensitivitySlider.maxValue;

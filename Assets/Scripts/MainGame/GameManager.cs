@@ -59,7 +59,7 @@ namespace MainGame
         {
             if (!IsTimeUp)
             {
-                timer += Time.deltaTime;
+               if(InputManager.Instance.CurrentMode == GameMode.MainGame) timer += Time.deltaTime;
             }
             else
             {

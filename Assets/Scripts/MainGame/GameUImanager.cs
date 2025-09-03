@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Text.RegularExpressions;
 using UnityEngine.UI;
 using TMPro;
 
@@ -7,6 +8,7 @@ namespace MainGame
     public class GameUIManager : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI scoreText;
+        [SerializeField] private TMP_InputField tmpInput;
         [SerializeField] private Image TimerImage;
         [SerializeField] private Image AimImage;
         [SerializeField] private Sprite ActiveAim;
@@ -65,7 +67,18 @@ namespace MainGame
                 scoreText.text = $"{max - current}/{max}";
             }
         }
+        public void FilterInput(string input)
+        {
+            // 半角英数字のみ許可
+            // 全角英字（ローマ字全角）や漢字・ひらがな・カタカナを除外
+            string filtered = Regex.Replace(input, @"[^0-9a-zA-Z]", "");
 
+            if (filtered != input)
+            {
+                tmpInput.text = filtered;
+                tmpInput.caretPosition = filtered.Length; // キャレットを末尾に
+            }
+        }
         public void ChengeInputPanel(int index)
         {
             switch (index)

@@ -38,6 +38,8 @@ namespace NovelSystems
 
         public void Initialize(TextAsset scenarioText, ICommandExecutor commandExecutor, NovelUIManager uiManager)
         {
+            ResetAll();
+
             _commandExecutor = commandExecutor;
             _uiManager = uiManager;
 
@@ -294,6 +296,7 @@ namespace NovelSystems
             return Regex.Replace(input, "<.*?>", "");
         }
     }
+
 
     [System.Serializable]
     public class CharacterSetting

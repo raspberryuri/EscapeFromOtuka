@@ -51,8 +51,7 @@ namespace MainGame
 
         public void OnLook(InputAction.CallbackContext context)
         {
-            return;
-            if (isSensitivityUIActive) return; // UI表示中は視点操作無効化も可
+            if(isSensitivityUIActive) return; // UI表示中は視点操作無効化も可
 
             Vector2 lookInput = context.ReadValue<Vector2>();
             rotationX += lookInput.x * mouseSensitivity;

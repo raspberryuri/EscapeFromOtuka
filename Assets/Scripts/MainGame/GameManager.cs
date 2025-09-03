@@ -212,7 +212,7 @@ namespace MainGame
             EnterNovelMode();
 
             var novel = NovelSystems.NovelManager.Instance;
-            novel.PlayScenario("CollectAnswer");
+            novel.PlayScenario($"CollectAnswer_{index}");
 
             ToggleTouch(index);
             inputField.text = "";

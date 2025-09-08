@@ -39,7 +39,7 @@ namespace MainGame
             if (MouseSensitivitySlider != null)
             {
                 MouseSensitivitySlider.minValue = 1f;
-                MouseSensitivitySlider.maxValue = 50f;
+                MouseSensitivitySlider.maxValue = 25f;
                 currentMouseSensitivity = MouseSensitivitySlider.maxValue;
                 MouseSensitivitySlider.value = currentMouseSensitivity;
 

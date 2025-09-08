@@ -12,7 +12,7 @@ namespace MainGame
         [SerializeField] private Transform playerCamera;
 
         [Header("マウス感度")]
-        [SerializeField] public static float mouseSensitivity = 50;   // ← インスペクターで設定可能
+        [SerializeField] public static float mouseSensitivity = 12.5f;   // ← インスペクターで設定可能
 
         private Rigidbody rb;
         private Vector2 moveInput = Vector2.zero;

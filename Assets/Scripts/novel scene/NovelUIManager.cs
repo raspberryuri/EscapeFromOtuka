@@ -54,7 +54,7 @@ namespace NovelSystems
         public void OpenLogWindow()
         {
             logPanel.SetActive(true);
-            context.text = string.Join("\n", logHistory); // 自前ログを表示
+            context.uneditedText = string.Join("\n", logHistory); // 自前ログを表示
             InputManager.Instance?.SwitchActionMap(GameMode.NotInput);
             Canvas.ForceUpdateCanvases();
             scrollRect.verticalNormalizedPosition = 0f;

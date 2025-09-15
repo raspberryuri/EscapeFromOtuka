@@ -3,6 +3,7 @@
 ミヤビ:一体何を唱(とな)えたの！？
 &img miyabi_smi event
 ミヤビ:ここで大塚遺跡(おおつかいせき)ポイント！！
+&rmimg miyabi_smi event
 &img miyabi_sup event
 &img background_19 background
 ミヤビ:竪穴式住居(たてあなしきじゅうきょ)がいくつもあるこのムラは、”外敵(がいてき)からムラを守るため”の「環濠(かんごう)」に囲(かこ)まれていて、

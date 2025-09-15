@@ -1,9 +1,11 @@
 &rmALL
 &img miyabi_def event
-ミヤビ：正解！答えは宮(みや)ノ台式(だいしき)土器(どき)の”宮(みや)ノ台(だい)”だったのね！
+ミヤビ:正解！答えは宮(みや)ノ台式(だいしき)土器(どき)の”宮(みや)ノ台(だい)”だったのね！
 ミヤビ:すごい！
+&rmimg miyabi_def event
 &img miyabi_smi event
 ミヤビ:ここで大塚遺跡(おおつかいせき)ポイント！！
+&rmimg miyabi_smi
 &img miyabi_sup event
 &img background_22 background
 ミヤビ:大塚遺跡(おおつかいせき)からは「宮(みや)ノ台式(だいしき)土器(どき)」という土器(どき)が発掘(はっくつ)されているよ。

@@ -60,7 +60,6 @@ namespace NovelSystems
             return result;
         }
 
-
         /// <summary>
         /// 括弧を自動でルビに変換する（漢字が連続している場合もすべて対象）
         /// 例: 漢字体験(かんじたいけん) -> <ruby>漢字体験<rt>かんじたいけん</rt></ruby>
@@ -131,18 +130,18 @@ namespace NovelSystems
             // 括弧をルビに変換
             message = ConvertParenthesesToRuby(message);
 
-            // ログ追加
+            // ログ追加（★修正済み：ルビタグ付きの文字列をそのまま送る）
             if (_uiManager != null)
             {
                 string logEntry;
                 if (!string.IsNullOrEmpty(name))
                 {
                     string colorCode = ColorUtility.ToHtmlStringRGB(nameObject.color);
-                    logEntry = $"\n<b><color=#{colorCode}>{name}</color></b>：{StripTags(message)}";
+                    logEntry = $"\n<b><color=#{colorCode}>{name}</color></b>：{message}";
                 }
                 else
                 {
-                    logEntry = $"\n<i><color=#FFFFFF>{StripTags(message)}</color></i>";
+                    logEntry = $"\n<i><color=#FFFFFF>{message}</color></i>";
                 }
                 _uiManager.AddLog(logEntry);
             }
@@ -287,16 +286,7 @@ namespace NovelSystems
             waitDuration = 0f;
             isWaiting = false;
         }
-
-        /// <summary>
-        /// ログ用にタグを除去して表示用文字列を作る
-        /// </summary>
-        private string StripTags(string input)
-        {
-            return Regex.Replace(input, "<.*?>", "");
-        }
     }
-
 
     [System.Serializable]
     public class CharacterSetting

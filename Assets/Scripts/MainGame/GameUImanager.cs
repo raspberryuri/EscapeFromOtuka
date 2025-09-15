@@ -39,7 +39,7 @@ namespace MainGame
             if (MouseSensitivitySlider != null)
             {
                 MouseSensitivitySlider.minValue = 1f;
-                MouseSensitivitySlider.maxValue = 25f;
+                MouseSensitivitySlider.maxValue = 5f;
                 currentMouseSensitivity = MouseSensitivitySlider.maxValue;
                 MouseSensitivitySlider.value = currentMouseSensitivity;
 
@@ -64,7 +64,7 @@ namespace MainGame
             {
                 int current = GameManager.Instance.Score;
                 int max = GameManager.Instance.MaxScore;
-                scoreText.text = $"{max - current}/{max}";
+                scoreText.text = $"{current}/{max}";
             }
         }
         public void FilterInput(string input)

@@ -12,7 +12,7 @@ namespace MainGame
         [SerializeField] private Transform playerCamera;
 
         [Header("マウス感度")]
-        [SerializeField] public static float mouseSensitivity = 12.5f;   // ← インスペクターで設定可能
+        public static float mouseSensitivity = 6.25f;   // ← インスペクターで設定可能
 
         private Rigidbody rb;
         private Vector2 moveInput = Vector2.zero;
@@ -21,7 +21,7 @@ namespace MainGame
         private float xRotation = 0f;
         private bool isSensitivityUIActive = false;
 
-        private const int MaxRayDistance = 2;
+        public const int MaxRayDistance = 6;
 
         void Start()
         {
